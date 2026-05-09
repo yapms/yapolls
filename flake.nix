@@ -13,6 +13,13 @@
 			devShells.default = pkgs.mkShellNoCC {
 				buildInputs = [
 					pkgs.nodejs_25
+
+					pkgs.go
+					pkgs.sqlc
+
+					pkgs.turso
+					pkgs.turso-cli
+					pkgs.sqld
 				];
 				shellHook = ''
 					echo "Welcome to the YAPolls development environment!"
