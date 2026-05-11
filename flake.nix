@@ -20,6 +20,9 @@
 					pkgs.turso
 					pkgs.turso-cli
 					pkgs.sqld
+					pkgs.gcc
+
+					pkgs.just
 				];
 				shellHook = ''
 					echo "Welcome to the YAPolls development environment!"
