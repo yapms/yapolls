@@ -38,4 +38,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	slog.Info("Syncing subjects.")
+	err = sync.SyncSubjects(queries)
+	if err != nil {
+		panic(err)
+	}
 }

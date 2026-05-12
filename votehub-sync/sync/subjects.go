@@ -6,17 +6,24 @@ import (
 	"io"
 	"net/http"
 	"votehub-sync/database"
+
+	"github.com/google/uuid"
 )
 
 type Subjects []Subject
 
 type Subject struct {
-	subject    string
-	poll_types PollTypes
+	Subject   string    `json:"subject"`
+	PollTypes PollTypes `json:"poll_types"`
 }
 
 func SyncSubjects(db *database.Queries) error {
 	subjects, err := downloadSubjects()
+	if err != nil {
+		return err
+	}
+
+	err = insertSubjects(db, subjects)
 	if err != nil {
 		return err
 	}
@@ -47,5 +54,36 @@ func downloadSubjects() (Subjects, error) {
 func insertSubjects(db *database.Queries, subjects Subjects) error {
 	ctx := context.Background()
 	for _, subject := range subjects {
+		id, err := uuid.NewV7()
+		if err != nil {
+			return err
+		}
+
+		bid, err := id.MarshalBinary()
+		if err != nil {
+			return err
+		}
+
+		_, err = db.CreateSubject(ctx, database.CreateSubjectParams{
+			ID:   bid,
+			Name: subject.Subject,
+		})
+		if err != nil {
+			continue
+		}
+
+		for _, polltype := range subject.PollTypes {
+			polltype, err := db.SearchPollType(ctx, polltype)
+			if err != nil {
+				continue
+			}
+
+			db.CreateSubjectPollType(ctx, database.CreateSubjectPollTypeParams{
+				SubjectID:  bid,
+				PolltypeID: polltype.ID,
+			})
+		}
 	}
+
+	return nil
 }

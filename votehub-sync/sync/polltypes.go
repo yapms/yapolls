@@ -3,7 +3,6 @@ package sync
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"votehub-sync/database"
@@ -55,7 +54,6 @@ func insertPollTypes(db *database.Queries, pollTypes PollTypes) error {
 		if err != nil {
 			return err
 		}
-
 		bid, err := id.MarshalBinary()
 		if err != nil {
 			return err
@@ -72,13 +70,4 @@ func insertPollTypes(db *database.Queries, pollTypes PollTypes) error {
 	}
 
 	return nil
-}
-
-func listPollTypes(db *database.Queries) {
-	ctx := context.Background()
-	pollTypes, err := db.ListPollTypes(ctx)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(pollTypes)
 }

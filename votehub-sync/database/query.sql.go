@@ -15,9 +15,7 @@ polltype (
 	id, name
 ) values (
 	?, ?
-)
-returning
-	id, name
+) returning id, name
 `
 
 type CreatePollTypeParams struct {
@@ -29,6 +27,48 @@ func (q *Queries) CreatePollType(ctx context.Context, arg CreatePollTypeParams) 
 	row := q.db.QueryRowContext(ctx, createPollType, arg.ID, arg.Name)
 	var i Polltype
 	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const createSubject = `-- name: CreateSubject :one
+insert into
+subject (
+	id, name
+) values (
+	?, ?
+) returning id, name
+`
+
+type CreateSubjectParams struct {
+	ID   []byte
+	Name string
+}
+
+func (q *Queries) CreateSubject(ctx context.Context, arg CreateSubjectParams) (Subject, error) {
+	row := q.db.QueryRowContext(ctx, createSubject, arg.ID, arg.Name)
+	var i Subject
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const createSubjectPollType = `-- name: CreateSubjectPollType :one
+insert into
+subject_polltype (
+	subject_id, polltype_id
+) values (
+	?, ?
+) returning subject_id, polltype_id
+`
+
+type CreateSubjectPollTypeParams struct {
+	SubjectID  []byte
+	PolltypeID []byte
+}
+
+func (q *Queries) CreateSubjectPollType(ctx context.Context, arg CreateSubjectPollTypeParams) (SubjectPolltype, error) {
+	row := q.db.QueryRowContext(ctx, createSubjectPollType, arg.SubjectID, arg.PolltypeID)
+	var i SubjectPolltype
+	err := row.Scan(&i.SubjectID, &i.PolltypeID)
 	return i, err
 }
 
@@ -62,4 +102,20 @@ func (q *Queries) ListPollTypes(ctx context.Context) ([]Polltype, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const searchPollType = `-- name: SearchPollType :one
+select
+	id, name
+from
+	polltype
+where
+	name = ?
+`
+
+func (q *Queries) SearchPollType(ctx context.Context, name string) (Polltype, error) {
+	row := q.db.QueryRowContext(ctx, searchPollType, name)
+	var i Polltype
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
 }
