@@ -44,4 +44,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	slog.Info("Syncing pollsters.")
+	err = sync.SyncPollsters(queries)
+	if err != nil {
+		panic(err)
+	}
+
+	slog.Info("Syncing polls.")
+	err = sync.SyncPolls(queries)
+	if err != nil {
+		panic(err)
+	}
 }

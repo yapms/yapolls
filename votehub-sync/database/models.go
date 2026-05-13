@@ -4,6 +4,45 @@
 
 package database
 
+import (
+	"database/sql"
+)
+
+type Poll struct {
+	ID         []byte
+	VotehubID  string
+	PollType   string
+	SampleSize sql.NullInt64
+	Population sql.NullString
+	Url        string
+	CreatedAt  string
+	StartDate  string
+	EndDate    string
+	PollsterID []byte
+	SeatName   sql.NullString
+	Internal   int64
+	Partisan   sql.NullString
+	SubjectID  []byte
+}
+
+type PollAnswer struct {
+	ID     []byte
+	PollID []byte
+	Choice sql.NullString
+	Pct    sql.NullInt64
+}
+
+type PollSponsor struct {
+	ID      []byte
+	PollID  []byte
+	Sponsor sql.NullString
+}
+
+type Pollster struct {
+	ID   []byte
+	Name string
+}
+
 type Polltype struct {
 	ID   []byte
 	Name string

@@ -38,4 +38,38 @@ subject_polltype (
 	?, ?
 ) returning *;
 
+-- name: CreatePollster :one
+insert into
+pollster (
+	id, name
+) values (
+	?, ?
+) returning *;
 
+-- name: ListPollsters :many
+select
+	*
+from
+	pollster
+order by
+	name;
+
+-- name: CreatePoll :one
+insert into
+poll (
+	id, votehub_id,
+	poll_type, sample_size,
+	population, url,
+	created_at, start_date,
+	end_date, pollster_id,
+	seat_name, internal,
+	partisan, subject_id
+) values (
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?
+) returning *;

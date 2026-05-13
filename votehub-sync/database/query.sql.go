@@ -7,7 +7,83 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createPoll = `-- name: CreatePoll :one
+insert into
+poll (
+	id, votehub_id,
+	poll_type, sample_size,
+	population, url,
+	created_at, start_date,
+	end_date, pollster_id,
+	seat_name, internal,
+	partisan, subject_id
+) values (
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?,
+	?, ?
+) returning id, votehub_id, poll_type, sample_size, population, url, created_at, start_date, end_date, pollster_id, seat_name, internal, partisan, subject_id
+`
+
+type CreatePollParams struct {
+	ID         []byte
+	VotehubID  string
+	PollType   string
+	SampleSize sql.NullInt64
+	Population sql.NullString
+	Url        string
+	CreatedAt  string
+	StartDate  string
+	EndDate    string
+	PollsterID []byte
+	SeatName   sql.NullString
+	Internal   int64
+	Partisan   sql.NullString
+	SubjectID  []byte
+}
+
+func (q *Queries) CreatePoll(ctx context.Context, arg CreatePollParams) (Poll, error) {
+	row := q.db.QueryRowContext(ctx, createPoll,
+		arg.ID,
+		arg.VotehubID,
+		arg.PollType,
+		arg.SampleSize,
+		arg.Population,
+		arg.Url,
+		arg.CreatedAt,
+		arg.StartDate,
+		arg.EndDate,
+		arg.PollsterID,
+		arg.SeatName,
+		arg.Internal,
+		arg.Partisan,
+		arg.SubjectID,
+	)
+	var i Poll
+	err := row.Scan(
+		&i.ID,
+		&i.VotehubID,
+		&i.PollType,
+		&i.SampleSize,
+		&i.Population,
+		&i.Url,
+		&i.CreatedAt,
+		&i.StartDate,
+		&i.EndDate,
+		&i.PollsterID,
+		&i.SeatName,
+		&i.Internal,
+		&i.Partisan,
+		&i.SubjectID,
+	)
+	return i, err
+}
 
 const createPollType = `-- name: CreatePollType :one
 insert into
@@ -26,6 +102,27 @@ type CreatePollTypeParams struct {
 func (q *Queries) CreatePollType(ctx context.Context, arg CreatePollTypeParams) (Polltype, error) {
 	row := q.db.QueryRowContext(ctx, createPollType, arg.ID, arg.Name)
 	var i Polltype
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const createPollster = `-- name: CreatePollster :one
+insert into
+pollster (
+	id, name
+) values (
+	?, ?
+) returning id, name
+`
+
+type CreatePollsterParams struct {
+	ID   []byte
+	Name string
+}
+
+func (q *Queries) CreatePollster(ctx context.Context, arg CreatePollsterParams) (Pollster, error) {
+	row := q.db.QueryRowContext(ctx, createPollster, arg.ID, arg.Name)
+	var i Pollster
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
@@ -90,6 +187,38 @@ func (q *Queries) ListPollTypes(ctx context.Context) ([]Polltype, error) {
 	var items []Polltype
 	for rows.Next() {
 		var i Polltype
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPollsters = `-- name: ListPollsters :many
+select
+	id, name
+from
+	pollster
+order by
+	name
+`
+
+func (q *Queries) ListPollsters(ctx context.Context) ([]Pollster, error) {
+	rows, err := q.db.QueryContext(ctx, listPollsters)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Pollster
+	for rows.Next() {
+		var i Pollster
 		if err := rows.Scan(&i.ID, &i.Name); err != nil {
 			return nil, err
 		}
