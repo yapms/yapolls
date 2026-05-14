@@ -1,7 +1,2 @@
 .envrc
 .direnv
-
-votehub-sync
-
-sqlite.db
-sqlite.db-wal

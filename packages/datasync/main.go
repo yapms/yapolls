@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"database/sql"
+	"datasync/database"
+	"datasync/votehub"
 	_ "embed"
 	"log/slog"
-	"votehub-sync/database"
-	"votehub-sync/sync"
 
 	_ "turso.tech/database/tursogo"
 )
@@ -15,7 +15,7 @@ import (
 var dll string
 
 func main() {
-	slog.Info("Running votehub sync.")
+	slog.Info("Running votehub votehub.")
 
 	ctx := context.Background()
 
@@ -34,25 +34,25 @@ func main() {
 	queries := database.New(db)
 
 	slog.Info("Syncing poll types.")
-	err = sync.SyncPollTypes(queries)
+	err = votehub.SyncPollTypes(queries)
 	if err != nil {
 		panic(err)
 	}
 
 	slog.Info("Syncing subjects.")
-	err = sync.SyncSubjects(queries)
+	err = votehub.SyncSubjects(queries)
 	if err != nil {
 		panic(err)
 	}
 
 	slog.Info("Syncing pollsters.")
-	err = sync.SyncPollsters(queries)
+	err = votehub.SyncPollsters(queries)
 	if err != nil {
 		panic(err)
 	}
 
 	slog.Info("Syncing polls.")
-	err = sync.SyncPolls(queries)
+	err = votehub.SyncPolls(queries)
 	if err != nil {
 		panic(err)
 	}

@@ -1,4 +1,4 @@
-module votehub-sync
+module datasync
 
 go 1.26.2
 

@@ -1,11 +1,11 @@
-package sync
+package votehub
 
 import (
 	"context"
+	"datasync/database"
 	"encoding/json"
 	"io"
 	"net/http"
-	"votehub-sync/database"
 
 	"github.com/google/uuid"
 )
