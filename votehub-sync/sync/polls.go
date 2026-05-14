@@ -42,7 +42,7 @@ func SyncPolls(db *database.Queries) error {
 		return err
 	}
 
-	err = insertPolls(polls)
+	err = insertPolls(db, polls)
 	if err != nil {
 		return err
 	}
@@ -84,6 +84,21 @@ func insertPolls(db *database.Queries, polls Polls) error {
 			return err
 		}
 
+		pollster, err := db.SearchPollster(ctx, poll.Pollster)
+		if err != nil {
+			continue
+		}
+
+		subject, err := db.SearchSubject(ctx, poll.Subject)
+		if err != nil {
+			continue
+		}
+
+		internal := int64(0)
+		if poll.Internal {
+			internal = 1
+		}
+
 		_, err = db.CreatePoll(ctx, database.CreatePollParams{
 			ID:        bid,
 			VotehubID: poll.VotehubID,
@@ -92,6 +107,25 @@ func insertPolls(db *database.Queries, polls Polls) error {
 				Int64: int64(poll.SampleSize),
 				Valid: poll.SampleSize != 0,
 			},
+			Population: sql.NullString{
+				String: poll.Population,
+				Valid:  poll.Population != "",
+			},
+			Url:        poll.URL,
+			CreatedAt:  poll.CreatedAt,
+			StartDate:  poll.StartDate,
+			EndDate:    poll.EndDate,
+			PollsterID: pollster.ID,
+			SeatName: sql.NullString{
+				String: poll.SeatName,
+				Valid:  poll.SeatName != "",
+			},
+			Internal: internal,
+			Partisan: sql.NullString{
+				String: poll.Partisan,
+				Valid:  poll.Partisan != "",
+			},
+			SubjectID: subject.ID,
 		})
 		if err != nil {
 			continue

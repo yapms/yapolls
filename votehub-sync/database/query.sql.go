@@ -248,3 +248,35 @@ func (q *Queries) SearchPollType(ctx context.Context, name string) (Polltype, er
 	err := row.Scan(&i.ID, &i.Name)
 	return i, err
 }
+
+const searchPollster = `-- name: SearchPollster :one
+select
+	id, name
+from
+	pollster
+where
+	name = ?
+`
+
+func (q *Queries) SearchPollster(ctx context.Context, name string) (Pollster, error) {
+	row := q.db.QueryRowContext(ctx, searchPollster, name)
+	var i Pollster
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
+const searchSubject = `-- name: SearchSubject :one
+select
+	id, name
+from
+	subject
+where
+	name = ?
+`
+
+func (q *Queries) SearchSubject(ctx context.Context, name string) (Subject, error) {
+	row := q.db.QueryRowContext(ctx, searchSubject, name)
+	var i Subject
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}

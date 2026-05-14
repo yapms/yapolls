@@ -54,6 +54,22 @@ from
 order by
 	name;
 
+-- name: SearchPollster :one
+select
+	*
+from
+	pollster
+where
+	name = ?;
+
+-- name: SearchSubject :one
+select
+	*
+from
+	subject
+where
+	name = ?;
+
 -- name: CreatePoll :one
 insert into
 poll (
